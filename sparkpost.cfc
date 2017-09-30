@@ -22,10 +22,15 @@ component output="false" displayname="Sparkpost.cfc"  {
     return this;
   }
 
-  //Mail
-  public struct function sendMail( required component transmission ) {
+  //Tranmissions (Email)
+  //https://developers.sparkpost.com/api/transmissions.html
+
+  public struct function createTransmission( required component transmission, num_rcpt_errors = 0 ) {
+    var params = {};
+    if ( num_rcpt_errors )
+      params = { 'num_rcpt_errors' : num_rcpt_errors };
     //writeDump( var='#transmission.build()#', format='html', abort='true' );
-    return apiCall( 'POST', '/mail/send', {}, transmission.build() );
+    return apiCall( 'POST', '/transmissions', params, transmission.build() );
   }
 
   //Relay Webhooks
