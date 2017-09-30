@@ -16,27 +16,23 @@
 */
 component output="false" displayname="Sparkpost.cfc"  {
 
-  public any function init( required string apiKey, string baseUrl = "https://api.sendgrid.com/v3", boolean forceTestMode = false, numeric httpTimeout = 60, boolean includeRaw = true ) {
+  public any function init( required string apiKey, string baseUrl = "https://api.sparkpost.com/api/v1", boolean forceTestMode = false, numeric httpTimeout = 60, boolean includeRaw = true ) {
 
     structAppend( variables, arguments );
     return this;
   }
 
   //Mail
-  public struct function sendMail( required helpers.mail mail ) {
-    //writeDump( var='#mail.build()#', format='html', abort='true' );
-    return apiCall( 'POST', '/mail/send', {}, mail.build() );
+  public struct function sendMail( required component transmission ) {
+    //writeDump( var='#transmission.build()#', format='html', abort='true' );
+    return apiCall( 'POST', '/mail/send', {}, transmission.build() );
   }
 
-  //Batches
-  public struct function generateBatchId() {
-    return apiCall( 'POST', "/mail/batch" );
-  }
+  //Relay Webhooks
+  //https://developers.sparkpost.com/api/relay-webhooks.html
 
-  //Stats
-  public struct function getStats( numeric limit, numeric offset, string aggregated_by, required string start_date, string end_date ) {
-
-    return apiCall( "/stats", setupParams( arguments ), "get" );
+  public struct function listRelayWebhooks() {
+    return apiCall( 'GET', '/relay-webhooks' );
   }
 
   // PRIVATE FUNCTIONS
@@ -90,8 +86,8 @@ component output="false" displayname="Sparkpost.cfc"  {
   private struct function getBaseHttpHeaders() {
     return {
       'Content-Type' : 'application/json',
-      'User-Agent' : 'sendgrid.cfc',
-      'Authorization' : 'Bearer #variables.apiKey#'
+      'User-Agent' : 'sparkpost.cfc',
+      'Authorization' : '#variables.apiKey#'
     };
   }
 
