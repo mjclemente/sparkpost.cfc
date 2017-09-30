@@ -12,6 +12,7 @@ component accessors="true" {
   public any function init() {
 
     setContent( {} );
+    setRecipients( [] );
     setMetadata( {} );
     setSubstitution_data( {} );
     setOptions( {} );
@@ -27,12 +28,12 @@ component accessors="true" {
   }
 
   public any function replyTo( required any email ) {
-    variables[ 'content' ][ 'reply_to' ] = parseEmail( email );
+    variables[ 'content' ][ 'reply_to' ] = parseEmail( email ).email;
     return this;
   }
 
   public any function subject( required string subject ) {
-    variables[ 'content' ][ 'subject' ] = parseEmail( subject );
+    variables[ 'content' ][ 'subject' ] = subject;
     return this;
   }
 
@@ -70,6 +71,54 @@ component accessors="true" {
     return this;
   }
 
+  /**
+  * @header Facilitates two means of setting a header. You can pass in a struct with a key/value pair for the name and value of the header. Alternatively, you can use this to pass in the name of the header, and provide the value as a second argument.
+  */
+  public any function header( required any header, any value ) {
+
+    if ( !variables.content.keyExists( 'headers' ) )
+      variables[ 'content' ][ 'headers' ] = {};
+
+    if ( isStruct( header ) )
+      variables.content.headers.append( header );
+    else
+      variables.content.headers[ header ] = value;
+
+    return this;
+  }
+
+  /**
+  * @hint If any headers were previously set, this method overwrites them.
+  * @headers An object containing key/value pairs of header names and their value. You must ensure these are properly encoded if they contain unicode characters. Must not be any of the following reserved headers: Content-Type, Content-Transfer-Encoding, To, From, Subject, Reply-To
+  */
+  public any function headers( required struct headers ) {
+    header( headers );
+    return this;
+  }
+
+  /**
+  * @hint Adds a NEW recipient envelope, with only the specified email address. The recipient can then be further customized with later commands
+  */
+  public any function to( required any email ) {
+    addRecipient(
+      {
+        'address': parseEmail( email )
+      }
+    );
+    return this;
+  }
+
+  /**
+  * @hint Creates and sets a new recipient envelope
+  * Documentation about recipients here: https://developers.sparkpost.com/api/recipient-lists.html
+  */
+  public void function addRecipient( required struct recipient ) {
+
+    if ( !recipient.keyExists( 'address' ) ) throw( 'You must include at least one "address" within the recipient object.' );
+
+    variables.recipients.append( recipient );
+  }
+
 
   public string function build() {
 
@@ -87,6 +136,10 @@ component accessors="true" {
     );
 
     return '{' & body & '}';
+  }
+
+  private numeric function countRecipients() {
+    return getRecipients().len();
   }
 
   private string function getHtmlContent() {
