@@ -37,6 +37,12 @@ component accessors="true" {
     return this;
   }
 
+  public any function usingTemplate( required string template_id, boolean use_draft_template = false ) {
+    variables[ 'content' ][ 'template_id' ] = template_id;
+    variables[ 'content' ][ 'use_draft_template' ] = use_draft_template;
+    return this;
+  }
+
   public any function html( required string message ) {
     variables[ 'content' ][ 'html' ] = message;
     return this;
@@ -117,6 +123,38 @@ component accessors="true" {
     if ( !recipient.keyExists( 'address' ) ) throw( 'You must include at least one "address" within the recipient object.' );
 
     variables.recipients.append( recipient );
+  }
+
+  /**
+  * @hint appends a substitution ( "substitution_tag":"value to substitute" ) to the **current** recipient envelope. You can add a substitution by providing the tag and value to substitute, or by passing in a struct.
+  * @substitution Facilitates two means of adding a substitution. You can pass in a struct with a tag/value for the substitution tag and value to substitute. Alternatively, you can use this argument to pass in the substitution tag, and provide the replacement value as a second argument.
+  */
+  public any function withSubstitution( any substitution, any value ) {
+    var count = countRecipients();
+    if ( !count ) throw( "You must add a recipient to this email before you can personalize substitutions" );
+
+    if ( !variables.recipients[ count ].keyExists( 'substitution_data' ) )
+      variables.recipients[ count ][ 'substitution_data' ] = {};
+
+    if ( isStruct( substitution ) )
+      variables.recipients[ count ][ 'substitution_data' ].append( substitution );
+    else
+      variables.recipients[ count ][ 'substitution_data' ][ substitution ] = value;
+
+    return this;
+  }
+
+  /**
+  * @hint sets the `substitutions` property for the **current** recipient envelope. If any substitutions were previously set, this method overwrites them.
+  * @substitutions An object containing key/value pairs of substitution tags and their replacement values.
+  */
+  public any function withSubstitutions( required struct substitutions ) {
+    var count = countRecipients();
+    if ( !count ) throw( "You must add a recipient to this email before you can personalize substitutions." );
+
+    variables.recipients[ count ][ 'substitution_data' ] = substitutions;
+
+    return this;
   }
 
 
