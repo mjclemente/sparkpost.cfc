@@ -210,15 +210,17 @@ component accessors="true" {
       var bracketedEmails = email.reMatchNoCase( regex );
       if ( bracketedEmails.len() ) {
         var bracketedEmail = bracketedEmails[1];
-        return {
-          'email' : bracketedEmail.REReplace( '[<>]', '', 'all'),
-          'name' : email.replacenocase( bracketedEmail, '' ).trim()
-        };
+        var displayName = email.replacenocase( bracketedEmail, '' ).trim();
+        var parsedEmail = { 'email' : bracketedEmail.REReplace( '[<>]', '', 'all') };
+
+        if ( displayName.len() )
+          parsedEmail[ 'name' ] = displayName;
+
+        return parsedEmail;
 
       } else {
         return {
-          'email' : email,
-          'name' : ''
+          'email' : email
         };
 
       }
