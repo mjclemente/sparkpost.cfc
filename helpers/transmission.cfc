@@ -37,7 +37,7 @@ component accessors="true" {
     return this;
   }
 
-  public any function usingTemplate( required string template_id, boolean use_draft_template = false ) {
+  public any function usingTemplate( required string templateId, boolean useDraftTemplate = false ) {
     variables[ 'content' ][ 'template_id' ] = template_id;
     variables[ 'content' ][ 'use_draft_template' ] = use_draft_template;
     return this;
