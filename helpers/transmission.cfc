@@ -162,6 +162,36 @@ component accessors="true" {
     return this;
   }
 
+  /**
+  * @hint appends a tag (text label) to the **current** recipient envelope.
+  */
+  public any function withTag( string tag ) {
+    var count = countRecipients();
+    if ( !count ) throw( "You must add a recipient to this email before you can personalize tags" );
+
+    if ( !variables.recipients[ count ].keyExists( 'tags' ) )
+      variables.recipients[ count ][ 'tags' ] = [];
+
+      variables.recipients[ count ][ 'tags' ].append( tag );
+
+    return this;
+  }
+
+  /**
+  * @hint sets the `tags` property for the **current** recipient envelope. If any tags were previously set, this method overwrites them.
+  * @tags Can be passed in as an array or comma separated list. Lists will be converted to arrays
+  */
+  public any function withTags( required any tags ) {
+    var count = countRecipients();
+    if ( !count ) throw( "You must add a recipient to this email before you can personalize tags." );
+
+    if ( isArray( tags ) )
+      variables.recipients[ count ][ 'tags' ] = tags;
+    else
+      variables.recipients[ count ][ 'tags' ] = tags.listToArray();
+
+    return this;
+  }
 
   public string function build() {
 
