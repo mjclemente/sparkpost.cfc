@@ -38,8 +38,8 @@ component accessors="true" {
   }
 
   public any function usingTemplate( required string templateId, boolean useDraftTemplate = false ) {
-    variables[ 'content' ][ 'template_id' ] = template_id;
-    variables[ 'content' ][ 'use_draft_template' ] = use_draft_template;
+    variables[ 'content' ][ 'template_id' ] = templateId;
+    variables[ 'content' ][ 'use_draft_template' ] = useDraftTemplate;
     return this;
   }
 
